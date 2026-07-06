@@ -123,7 +123,7 @@ Built with Python, FastAPI, and Nmap.
 
 ```bash
 # Clone the repo
-git clone <repo-url>
+git clone https://github.com/Thatforbesguy/Port-sentinel
 cd portsentinel
 
 # Create virtual environment and install dependencies
