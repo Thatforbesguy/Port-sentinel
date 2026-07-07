@@ -113,6 +113,57 @@ RISK_RULES: dict[int, dict] = {
         ),
     },
 
+    2375: {
+        "service": "Docker",
+        "risk_level": "Critical",
+        "description": (
+            "Unprotected Docker daemon APIs allow attackers to spin up "
+            "containers, mount the host system's root filesystem, and achieve "
+            "full remote code execution (RCE) on the host. Secure the API with "
+            "TLS client certificates or bind it to localhost only."
+        ),
+    },
+    2376: {
+        "service": "Docker-TLS",
+        "risk_level": "Critical",
+        "description": (
+            "While encrypted, the Docker daemon API is exposed. If mutual TLS "
+            "(mTLS) is not properly configured, an attacker could still "
+            "interact with the daemon to achieve container escape and host "
+            "compromise. Ensure strong authentication is enforced."
+        ),
+    },
+    10250: {
+        "service": "Kubelet",
+        "risk_level": "Critical",
+        "description": (
+            "The Kubernetes Kubelet API allows for command execution inside "
+            "containers. If exposed and unauthenticated, it can lead to "
+            "complete cluster compromise. Restrict access and ensure anonymous "
+            "authentication is disabled."
+        ),
+    },
+    8500: {
+        "service": "Consul",
+        "risk_level": "Critical",
+        "description": (
+            "Consul provides service discovery and key-value storage. If "
+            "exposed without authentication, attackers can read/write KV "
+            "entries or register malicious services with health checks that "
+            "execute arbitrary commands on the server."
+        ),
+    },
+    502: {
+        "service": "Modbus",
+        "risk_level": "Critical",
+        "description": (
+            "Modbus is an industrial control protocol (SCADA/ICS) that lacks "
+            "authentication by default. An exposed Modbus port allows anyone "
+            "to read or write registers on a PLC, potentially causing "
+            "physical infrastructure damage. Isolate on a strict OT network."
+        ),
+    },
+
     # ------------------------------------------------------------------
     # HIGH — risky services that need attention
     # ------------------------------------------------------------------
@@ -210,6 +261,57 @@ RISK_RULES: dict[int, dict] = {
         ),
     },
 
+    389: {
+        "service": "LDAP",
+        "risk_level": "High",
+        "description": (
+            "Lightweight Directory Access Protocol (LDAP) transmits queries "
+            "and credentials in plaintext. Attackers can sniff traffic to "
+            "steal passwords or enumerate users and groups. LDAP should be "
+            "disabled in favor of LDAPS or LDAP with StartTLS."
+        ),
+    },
+    9200: {
+        "service": "Elasticsearch",
+        "risk_level": "High",
+        "description": (
+            "Elasticsearch databases are frequently targeted by automated "
+            "ransomware bots when bound to untrusted interfaces without "
+            "authentication. Attackers can read, modify, or delete massive "
+            "amounts of data. Bind to 127.0.0.1 and enable security features."
+        ),
+    },
+    5985: {
+        "service": "WinRM",
+        "risk_level": "High",
+        "description": (
+            "Windows Remote Management (WinRM) over HTTP allows remote "
+            "administration. It is subject to brute-forcing, password-spraying, "
+            "and lateral movement within corporate networks. It should be "
+            "heavily firewalled and restricted to dedicated admin subnets."
+        ),
+    },
+    5986: {
+        "service": "WinRM-HTTPS",
+        "risk_level": "High",
+        "description": (
+            "Windows Remote Management (WinRM) over HTTPS provides encryption "
+            "but still exposes remote administrative access. It remains a "
+            "prime target for credential attacks and lateral movement. Restrict "
+            "access using network firewalls."
+        ),
+    },
+    1723: {
+        "service": "PPTP",
+        "risk_level": "High",
+        "description": (
+            "Point-to-Point Tunneling Protocol (PPTP) is a deprecated VPN "
+            "protocol. Its authentication (MS-CHAPv2) is cryptographically "
+            "broken and can be cracked easily to intercept VPN traffic. "
+            "Replace with OpenVPN, L2TP/IPsec, or WireGuard."
+        ),
+    },
+
     # ------------------------------------------------------------------
     # MEDIUM — generally okay but worth reviewing
     # ------------------------------------------------------------------
@@ -295,6 +397,46 @@ RISK_RULES: dict[int, dict] = {
         ),
     },
 
+    1900: {
+        "service": "UPnP",
+        "risk_level": "Medium",
+        "description": (
+            "Universal Plug and Play (UPnP) is often enabled on local routers "
+            "and IoT devices. It is vulnerable to SSDP amplification DDoS "
+            "attacks and can sometimes be manipulated to expose internal "
+            "devices to the internet. UPnP should generally be disabled."
+        ),
+    },
+    5060: {
+        "service": "SIP",
+        "risk_level": "Medium",
+        "description": (
+            "Session Initiation Protocol (SIP) is used for VoIP. Exposed SIP "
+            "ports are frequent targets of SIP scanning, toll fraud, and "
+            "authentication brute-forcing. Ensure strong credentials and rate "
+            "limiting are applied."
+        ),
+    },
+    9100: {
+        "service": "JetDirect",
+        "risk_level": "Medium",
+        "description": (
+            "Port 9100 is used for RAW network printing. Printer ports are "
+            "usually unauthenticated and can be abused to capture print jobs, "
+            "spam the printer, or manipulate device firmware. Isolate printers "
+            "on dedicated VLANs."
+        ),
+    },
+    111: {
+        "service": "RPCbind",
+        "risk_level": "Medium",
+        "description": (
+            "RPCbind (Portmapper) maps RPC services to network ports. It can "
+            "leak system metadata about available services and can be abused "
+            "in UDP amplification attacks. Filter access to trusted hosts."
+        ),
+    },
+
     # ------------------------------------------------------------------
     # LOW — generally secure, but still worth noting
     # ------------------------------------------------------------------
@@ -333,6 +475,25 @@ RISK_RULES: dict[int, dict] = {
             "typically requires authentication and supports STARTTLS. "
             "This is the recommended way to send email. Ensure STARTTLS "
             "is enforced (not optional)."
+        ),
+    },
+    636: {
+        "service": "LDAPS",
+        "risk_level": "Low",
+        "description": (
+            "LDAPS is the secure, TLS-encrypted version of LDAP. While "
+            "generally secure against sniffing, ensure the TLS certificate "
+            "is valid and strong cipher suites are enforced."
+        ),
+    },
+    2222: {
+        "service": "SSH-Alt",
+        "risk_level": "Low",
+        "description": (
+            "Port 2222 is a frequently used alternate port for SSH. Moving "
+            "SSH to a non-standard port reduces log noise from automated "
+            "scanners, but does not replace the need for key-based "
+            "authentication and proper hardening."
         ),
     },
 }
