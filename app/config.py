@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     # The API key that clients must send in the X-API-Key header.
     # In a real SOC tool this would be rotated and stored in a vault;
     # for this portfolio project a simple env-var is appropriate.
-    api_key: str = "changeme"
+    api_key: str
 
     # Comma-separated allow-list of scan targets.
     # Only IPs or subnets in this list can be scanned.

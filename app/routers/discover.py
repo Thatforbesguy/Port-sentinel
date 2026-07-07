@@ -11,6 +11,7 @@ without manual configuration.
 """
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.concurrency import run_in_threadpool
 
 from app.auth import verify_api_key
 from app.models.schemas import DiscoverRequest, DiscoverResponse
@@ -34,7 +35,7 @@ router = APIRouter()
         "automatically detects the local network."
     ),
 )
-def discover(request: DiscoverRequest):
+async def discover(request: DiscoverRequest):
     """
     1. Determine the subnet (auto-detect if not provided).
     2. Validate that the subnet is a private/local range.
@@ -64,5 +65,5 @@ def discover(request: DiscoverRequest):
         )
 
     # --- Execute discovery ---
-    result = run_discovery(subnet)
+    result = await run_in_threadpool(run_discovery, subnet)
     return result

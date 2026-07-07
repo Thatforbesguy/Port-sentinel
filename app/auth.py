@@ -6,6 +6,7 @@ Security+ Domain 3 — Security Architecture:
     control.  Without this header, no scan can be triggered. 
 """
 
+import secrets
 from fastapi import Header, HTTPException, status
 
 from app.config import settings
@@ -18,7 +19,7 @@ def verify_api_key(x_api_key: str = Header(...)) -> str:
     Raises 401 Unauthorized if the key is missing or wrong.
     Returns the key string if valid (not used downstream, but available).
     """
-    if x_api_key != settings.api_key:
+    if not secrets.compare_digest(x_api_key, settings.api_key):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or missing API key.",

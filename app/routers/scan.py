@@ -8,6 +8,7 @@ list, runs the nmap scan, and returns classified results.
 
 import ipaddress
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.concurrency import run_in_threadpool
 
 from app.auth import verify_api_key
 from app.config import settings
@@ -52,7 +53,7 @@ def _is_target_allowed(target: str) -> bool:
         "target IP and classifies each open port by risk level."
     ),
 )
-def scan(request: ScanRequest):
+async def scan(request: ScanRequest):
     """
     1. Verify the target IP is in the allow-list.
     2. Run the nmap scan via services/scanner.py.
@@ -70,5 +71,5 @@ def scan(request: ScanRequest):
         )
 
     # --- Execute scan ---
-    result = run_scan(request.target)
+    result = await run_in_threadpool(run_scan, request.target)
     return result

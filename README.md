@@ -132,8 +132,8 @@ source venv/bin/activate        # Linux/Mac
 venv\Scripts\activate           # Windows
 pip install -r requirements.txt
 
-# Configure
-cp .env.example .env            # Edit .env to set your API key
+# Configure (REQUIRED)
+cp .env.example .env            # Edit .env to set your API key. The app will not start without this.
 ```
 
 ### Run

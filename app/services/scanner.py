@@ -18,23 +18,18 @@ import nmap
 
 from app.services.risk_engine import classify_port, RISK_RULES
 
-# Common ports NOT already in RISK_RULES, added purely for general coverage
-# (things worth seeing even if we don't have a specific risk write-up for them yet)
-EXTRA_COMMON_PORTS = [25, 53, 110, 143, 445, 3306, 5432, 8080, 8443]
-
 
 def _scan_port_list() -> str:
     """
     Builds a focused port list instead of scanning a generic top-N range.
 
     Why: Scanning ports we have no risk classification for wastes scan
-    time -- an open port outside our RISK_RULES table just falls back to
+    scan time -- an open port outside our RISK_RULES table just falls back to
     an unhelpful "Unknown/Low" result anyway. Instead we scan exactly the
-    ports our risk engine understands, plus a handful of other very common
-    ports for general visibility. This is both faster than a top-1000
+    ports our risk engine understands. This is both faster than a top-1000
     scan and more meaningful than a blind top-100 scan.
     """
-    ports = set(RISK_RULES.keys()) | set(EXTRA_COMMON_PORTS)
+    ports = set(RISK_RULES.keys())
     return ",".join(str(p) for p in sorted(ports))
 
 
@@ -55,7 +50,7 @@ def run_scan(target: str) -> dict:
 
     # -sV enables service/version detection so nmap tells us *what* is
     # running on each port, not just that the port is open.
-    scanner.scan(target, arguments=f"-sV -p {port_list}")
+    scanner.scan(target, arguments=f"-sV --host-timeout 5m -p {port_list}")
 
     vulnerabilities = []
 
